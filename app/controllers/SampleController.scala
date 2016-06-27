@@ -1,25 +1,17 @@
 package controllers
 
-import play.api._
 import play.api.mvc._
-import play.api.db.slick.DatabaseConfigProvider
-import play.api.db.slick.HasDatabaseConfig
-import slick.driver.JdbcProfile
 import models._
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import slick.driver.H2Driver.api._
-
 import scala.concurrent.Future
 
-class SampleController extends Controller with HasDatabaseConfig[JdbcProfile] {
-  val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
+class SampleController extends Controller {
 
   def index = Action {
 
-    val campaigns = TableQuery[Campaigns]
-    val result: Future[Seq[Campaign]] = db.run(campaigns.result)
+    val result: Future[Option[Campaign]] = CampaignsDAO.findById(2)
     Await.result(result, Duration.Inf) foreach println
 
     Ok(views.html.Sample.index("index page."))
