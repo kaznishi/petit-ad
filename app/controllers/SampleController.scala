@@ -1,18 +1,27 @@
 package controllers
 
-import com.google.inject.Inject
 import play.api._
 import play.api.mvc._
-import models._
 import play.api.db.slick.DatabaseConfigProvider
+import play.api.db.slick.HasDatabaseConfig
 import slick.driver.JdbcProfile
+import models._
+
+import scala.concurrent.Await
+import scala.concurrent.duration.Duration
+import slick.driver.H2Driver.api._
 
 import scala.concurrent.Future
 
-class SampleController @Inject()(dbConfigProvider: DatabaseConfigProvider)  extends Controller {
-  val dbConfig = dbConfigProvider.get[JdbcProfile]
+class SampleController extends Controller with HasDatabaseConfig[JdbcProfile] {
+  val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 
   def index = Action {
+
+    val campaigns = TableQuery[Campaigns]
+    val result: Future[Seq[Campaign]] = db.run(campaigns.result)
+    Await.result(result, Duration.Inf) foreach println
+
     Ok(views.html.Sample.index("index page."))
   }
 
@@ -34,7 +43,6 @@ class SampleController @Inject()(dbConfigProvider: DatabaseConfigProvider)  exte
 case class Task(id: Int, name: String) {
 
 }
-
 
 
 
