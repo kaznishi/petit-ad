@@ -20,10 +20,15 @@ trait CampaignsTable {
   val campaigns = TableQuery[Campaigns]
 }
 
-object CampaignsDAO extends HasDatabaseConfig[JdbcProfile]
-  with CampaignsTable {
+object CampaignsDAO extends HasDatabaseConfig[JdbcProfile] with CampaignsTable {
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 
   def findById(id: Int): Future[Option[Campaign]] =
     db.run(campaigns.filter(_.id === id).result.headOption)
+
+  def findAll: Future[Seq[Campaign]] =
+    db.run(campaigns.result)
+
+
+
 }

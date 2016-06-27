@@ -1,1 +1,26 @@
-@()
+@(records: Seq[Campaign])
+
+@layout.default("list page") {
+    <h1>キャンペーン一覧</h1>
+    <div class="table-example">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>title</th>
+                    <th>content</th>
+                </tr>
+            </thead>
+            <tbody>
+            @for(t <- records) {
+                <tr>
+                    <th scope="row">@t.id</th>
+                    <td>@t.title</td>
+                    <td>@t.content</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+} {<!-- javascripts -->
+}
