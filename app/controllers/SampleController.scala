@@ -2,6 +2,10 @@ package controllers
 
 import play.api.mvc._
 import models._
+import java.sql.Timestamp
+import java.util.Date
+
+import org.joda.time.DateTime
 
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -10,9 +14,10 @@ import scala.concurrent.Future
 class SampleController extends Controller {
 
   def index = Action {
-
-    val campaign = new Campaign(Option(5), "aaaa", "updated")
-    val result = CampaignsDAO.update(campaign)
+    val datetime = new DateTime(2016,6,26,0,0,0,0)
+    println(datetime)
+    val result = DeliveryLogsDAO.findByDate(datetime)
+//    val result = DeliveryLogsDAO.findByDate(new Date())
 //    println(result)
     //    Await.result(result, Duration.Inf) foreach println
     val hoge = Await.result(result, Duration.Inf)
