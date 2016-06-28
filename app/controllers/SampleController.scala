@@ -11,8 +11,12 @@ class SampleController extends Controller {
 
   def index = Action {
 
-    val result = CampaignsDAO.findAll
-    Await.result(result, Duration.Inf) foreach println
+    val campaign = new Campaign(Option(5), "aaaa", "updated")
+    val result = CampaignsDAO.update(campaign)
+//    println(result)
+    //    Await.result(result, Duration.Inf) foreach println
+    val hoge = Await.result(result, Duration.Inf)
+    println(hoge)
 
     Ok(views.html.Sample.index("index page."))
   }
