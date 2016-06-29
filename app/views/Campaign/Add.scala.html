@@ -1,1 +1,19 @@
 @()
+
+    @layout.default("add page") {
+        <h1>キャンペーン登録</h1>
+        <div class="table-example">
+            <form action="@routes.CampaignController.addPost()" method="POST">
+                <fieldset class="form-group">
+                    <label for="input-title">タイトル</label>
+                    <input type="text" class="form-control" id="input-title" placeholder="" value="hoge">
+                </fieldset>
+                <fieldset class="form-group">
+                    <label for="textarea-content">コンテンツ</label>
+                    <textarea class="form-control" id="textarea-content" rows="3">hoge</textarea>
+                </fieldset>
+                <button type="submit" class="btn btn-primary">登録</button>
+            </form>
+        </div>
+    } {<!-- javascripts -->
+    }

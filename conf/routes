@@ -12,7 +12,8 @@ GET     /signin                           controllers.DefaultController.signin
 
 
 GET     /campaign/list                  controllers.CampaignController.list
-GET     /campaign/add                   controllers.CampaignController.add
+GET     /campaign/add                   controllers.CampaignController.addView
+POST    /campaign/add                   controllers.CampaignController.addPost
 GET     /campaign/edit                  controllers.CampaignController.edit
 
 GET     /delivery/default               controllers.DeliveryController.default
