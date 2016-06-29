@@ -16,6 +16,7 @@ GET     /campaign/add                   controllers.CampaignController.add
 GET     /campaign/edit                  controllers.CampaignController.edit
 
 GET     /delivery/default               controllers.DeliveryController.default
+GET     /delivery/random                controllers.DeliveryController.random
 
 GET     /report/by-campaign             controllers.ReportController.byCampaign
 GET     /report/by-date                 controllers.ReportController.byDate

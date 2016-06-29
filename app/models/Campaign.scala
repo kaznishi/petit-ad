@@ -39,6 +39,9 @@ object CampaignsDAO extends HasDatabaseConfig[JdbcProfile] with CampaignsTable {
       .update((record.title, record.content)))
   }
 
+  def getCampaignIds: Future[Seq[Int]] = {
+    db.run(campaigns.map(row => (row.id)).result)
+  }
 
 
 }
