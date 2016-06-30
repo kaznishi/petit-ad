@@ -11,11 +11,10 @@ import scala.concurrent.Future
 
 object CampaignController {
 
-  case class CampaignForm(id: Option[Int], title: String, content: String)
+  case class CampaignForm(title: String, content: String)
 
-  val campaignForm = Form(
+  val campaignForm = Form[CampaignForm](
     mapping(
-      "id" -> optional(number),
       "title" -> nonEmptyText,
       "content" -> nonEmptyText
     )(CampaignForm.apply)(CampaignForm.unapply)
@@ -36,7 +35,6 @@ class CampaignController extends Controller {
   def addPost = Action.async { implicit rs =>
     campaignForm.bindFromRequest.fold(
       formWithErrors => {
-        println(formWithErrors)
         Future(BadRequest(views.html.Campaign.Add(formWithErrors)))
       },
       formData => {
@@ -48,8 +46,32 @@ class CampaignController extends Controller {
     )
   }
 
-  def edit = Action {
-    Ok(views.html.Campaign.Edit())
+  def editView(id: Int) = Action.async { implicit rs =>
+    CampaignsDAO.findById(id).map {
+      case Some(record) => {
+        val cf = campaignForm.fill(CampaignForm(record.title, record.content))
+        Ok(views.html.Campaign.Edit(id, cf))
+      }
+      case None =>
+        Redirect(routes.CampaignController.list)
+    }
   }
+
+  def editPost(id: Int) = Action.async { implicit rs =>
+    campaignForm.bindFromRequest.fold(
+      formWithErrors => {
+        Future(BadRequest(views.html.Campaign.Edit(id, formWithErrors)))
+      },
+      formData => {
+        val campaign = Campaign(Option(id), formData.title, formData.content)
+        CampaignsDAO.update(campaign).map { _ =>
+          Redirect(routes.CampaignController.list)
+        }
+      }
+    )
+  }
+
+
+
 
 }

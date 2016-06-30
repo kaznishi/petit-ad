@@ -14,7 +14,8 @@ GET     /signin                           controllers.DefaultController.signin
 GET     /campaign/list                  controllers.CampaignController.list
 GET     /campaign/add                   controllers.CampaignController.addView
 POST    /campaign/add                   controllers.CampaignController.addPost
-GET     /campaign/edit                  controllers.CampaignController.edit
+GET     /campaign/edit/:id              controllers.CampaignController.editView(id: Int)
+POST    /campaign/edit/:id              controllers.CampaignController.editPost(id: Int)
 
 GET     /delivery/default               controllers.DeliveryController.default
 GET     /delivery/random                controllers.DeliveryController.random

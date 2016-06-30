@@ -1,1 +1,37 @@
-@()
+@import CampaignController._
+
+@(id: Int, campaignForm: Form[CampaignForm])
+
+    @layout.default("edit page") {
+
+        @if(campaignForm.hasGlobalErrors) {
+            <ul>
+            @for(error <- campaignForm.globalErrors) {
+                <li>@error.message</li>
+            }
+            </ul>
+        }
+        @if(campaignForm.hasErrors) {
+            <ul>
+            @for(error <- campaignForm.errors) {
+                <li>@error.key : @error.message</li>
+            }
+            </ul>
+        }
+
+        <h1>キャンペーン編集</h1>
+        <div class="table-example">
+            <form action="@routes.CampaignController.editPost(id)" method="POST">
+                <fieldset class="form-group">
+                    <label for="input-title">タイトル</label>
+                    <input name="title" type="text" class="form-control" id="input-title" placeholder="" value="@campaignForm.data("title")">
+                </fieldset>
+                <fieldset class="form-group">
+                    <label for="textarea-content">コンテンツ</label>
+                    <textarea name="content" class="form-control" id="textarea-content" rows="3">@campaignForm.data("content")</textarea>
+                </fieldset>
+                <button type="submit" class="btn btn-primary">登録</button>
+            </form>
+        </div>
+    } {<!-- javascripts -->
+    }
