@@ -3,9 +3,10 @@ package controllers
 import models._
 import play.api.data._
 import play.api.data.Forms._
-
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
+
+import scala.concurrent.Future
 
 
 object CampaignController {
@@ -29,18 +30,18 @@ class CampaignController extends Controller {
   }
 
   def addView = Action {
-    Ok(views.html.Campaign.Add())
+    Ok(views.html.Campaign.Add(campaignForm))
   }
 
   def addPost = Action.async { implicit rs =>
     campaignForm.bindFromRequest.fold(
-      error => {
-        CampaignsDAO.findById(1).map { _ =>
-          BadRequest(views.html.Campaign.Add())
-        }
+      formWithErrors => {
+        println(formWithErrors)
+        Future(BadRequest(views.html.Campaign.Add(formWithErrors)))
       },
-      form => {
-        CampaignsDAO.findById(1).map { _ =>
+      formData => {
+        val campaign = Campaign(None, formData.title, formData.content)
+        CampaignsDAO.insert(campaign).map { _ =>
           Redirect(routes.CampaignController.list)
         }
       }

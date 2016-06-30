@@ -1,16 +1,34 @@
-@()
+@import CampaignController._
+
+@(campaignForm: Form[CampaignForm])
 
     @layout.default("add page") {
+
+        @if(campaignForm.hasGlobalErrors) {
+            <ul>
+            @for(error <- campaignForm.globalErrors) {
+                <li>@error.message</li>
+            }
+            </ul>
+        }
+        @if(campaignForm.hasErrors) {
+            <ul>
+            @for(error <- campaignForm.errors) {
+                <li>@error.key : @error.message</li>
+            }
+            </ul>
+        }
+
         <h1>キャンペーン登録</h1>
         <div class="table-example">
             <form action="@routes.CampaignController.addPost()" method="POST">
                 <fieldset class="form-group">
                     <label for="input-title">タイトル</label>
-                    <input type="text" class="form-control" id="input-title" placeholder="" value="hoge">
+                    <input name="title" type="text" class="form-control" id="input-title" placeholder="" value="">
                 </fieldset>
                 <fieldset class="form-group">
                     <label for="textarea-content">コンテンツ</label>
-                    <textarea class="form-control" id="textarea-content" rows="3">hoge</textarea>
+                    <textarea name="content" class="form-control" id="textarea-content" rows="3"></textarea>
                 </fieldset>
                 <button type="submit" class="btn btn-primary">登録</button>
             </form>

@@ -1,6 +1,7 @@
 @(records: Seq[Campaign])
 
 @layout.default("list page") {
+    <a href="@routes.CampaignController.addView()" class="btn btn-info" role="button">新規登録画面へ</a>
     <h1>キャンペーン一覧</h1>
     <div class="table-example">
         <table class="table">
