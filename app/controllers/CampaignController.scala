@@ -70,8 +70,4 @@ class CampaignController extends Controller {
       }
     )
   }
-
-
-
-
 }
