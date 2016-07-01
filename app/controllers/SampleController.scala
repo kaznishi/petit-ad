@@ -14,14 +14,11 @@ import scala.concurrent.Future
 class SampleController extends Controller {
 
   def index = Action {
-    val datetime = new DateTime(2016,6,26,0,0,0,0)
-    println(datetime)
-    val result = DeliveryLogsDAO.findByDate(datetime)
-//    val result = DeliveryLogsDAO.findByDate(new Date())
-//    println(result)
-    //    Await.result(result, Duration.Inf) foreach println
-    val hoge = Await.result(result, Duration.Inf)
-    println(hoge)
+
+    val result = DeliveryLogsDAO.getSumGroupByCampaign
+    println(result)
+    Await.result(result, Duration.Inf) foreach println
+
 
     Ok(views.html.Sample.index("index page."))
   }

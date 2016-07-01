@@ -3,7 +3,7 @@
 @(id: Int, campaignForm: Form[CampaignFormData])(implicit messages: Messages)
 
     @layout.default("edit page") {
-    
+
         <h1>キャンペーン編集</h1>
         <div class="table-example">
             <form action="@routes.CampaignController.editPost(id)" method="POST">

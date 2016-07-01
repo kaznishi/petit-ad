@@ -22,7 +22,7 @@ trait DeliveryLogsTable {
   val deliveryLogs = TableQuery[DeliveryLogs]
 }
 
-object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsTable {
+object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsTable with CampaignsTable {
   val dbConfig = DatabaseConfigProvider.get[JdbcProfile](Play.current)
 
   def findById(id: Long): Future[Option[DeliveryLog]] =
@@ -38,6 +38,37 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
     */
   def findByCampaignId(campaignId: Int): Future[Seq[DeliveryLog]] =
     db.run(deliveryLogs.filter(_.campaignId === campaignId).result)
+
+  def getSumGroupByCampaign: Future[Seq[Any]] =
+//    db.run(deliveryLogs.groupBy(d => d.campaignId)
+//        .map{ case (campaignId, group) => (campaignId, group.map(_.id).length) }
+//        .result
+//
+//    db.run((deliveryLogs join campaigns on (_.campaignId === _.id))
+//      .map{ case (d, c) => (d.id, d.createdAt, c.title) }
+//      .result
+//
+
+      val hoge = deliveryLogs.groupBy(d => d.campaignId)
+          .map{ case (campaignId, group) => (campaignId, group.map(_.id).length) }
+
+
+
+      val fuga = for {
+        c <- hoge
+        s <- campaigns if (c)
+      }
+
+
+      db.run((deliveryLogs join campaigns on (_.campaignId === _.id))
+        .map{ case (d, c) => (d.id, d.campaignId, d.createdAt, c.title) }
+        .map{ case (id, campaignId, craetedAt, title) => {
+
+        }(d.campaignId, c.title, group.map(_.id).length) }
+        .result
+
+    )
+
 
   /**
     * 指定日のレコードを取得する
