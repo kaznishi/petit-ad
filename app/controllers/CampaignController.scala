@@ -1,10 +1,12 @@
 package controllers
 
+import com.google.inject.Inject
 import models._
 import play.api.data._
 import play.api.data.Forms._
 import play.api.mvc._
 import play.api.libs.concurrent.Execution.Implicits._
+import play.api.i18n.{MessagesApi, I18nSupport}
 
 import scala.concurrent.Future
 
@@ -21,7 +23,7 @@ object CampaignController {
   )
 }
 
-class CampaignController extends Controller {
+class CampaignController @Inject()(val messagesApi: MessagesApi) extends Controller with I18nSupport {
   import CampaignController._
 
   def list = Action.async {
