@@ -11,13 +11,13 @@ import scala.concurrent.Future
 
 object CampaignController {
 
-  case class CampaignForm(title: String, content: String)
+  case class CampaignFormData(title: String, content: String)
 
-  val campaignForm = Form[CampaignForm](
+  val campaignForm = Form[CampaignFormData](
     mapping(
       "title" -> nonEmptyText,
       "content" -> nonEmptyText
-    )(CampaignForm.apply)(CampaignForm.unapply)
+    )(CampaignFormData.apply)(CampaignFormData.unapply)
   )
 }
 
@@ -49,7 +49,7 @@ class CampaignController extends Controller {
   def editView(id: Int) = Action.async { implicit rs =>
     CampaignsDAO.findById(id).map {
       case Some(record) => {
-        val cf = campaignForm.fill(CampaignForm(record.title, record.content))
+        val cf = campaignForm.fill(CampaignFormData(record.title, record.content))
         Ok(views.html.Campaign.Edit(id, cf))
       }
       case None =>
