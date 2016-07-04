@@ -32,7 +32,7 @@ class DeliveryController extends Controller {
   def default = Action.async { implicit rs =>
     CampaignsDAO.findById(1).map {
       case Some(record) => {
-        DeliveryLogsDAO.insert(DeliveryLog(None, record.id.get, new DateTime()))
+        DeliveryLogsDAO.insert(DeliveryLog(None, record.id.get, new DateTime(), new DateTime()))
         Ok(Json.obj("data" -> Delivery(record)))
       }
       case None =>
@@ -48,7 +48,7 @@ class DeliveryController extends Controller {
 
         CampaignsDAO.findById(ids(index)).map {
           case Some(record) => {
-            DeliveryLogsDAO.insert(DeliveryLog(None, record.id.get, new DateTime()))
+            DeliveryLogsDAO.insert(DeliveryLog(None, record.id.get, new DateTime(), new DateTime()))
             Ok(Json.obj("data" -> Delivery(record)))
           }
           case None =>

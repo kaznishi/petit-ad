@@ -12,6 +12,7 @@ CREATE TABLE campaigns (
 CREATE TABLE delivery_logs (
     id bigint(20) NOT NULL AUTO_INCREMENT,
     campaign_id integer(10) NOT NULL,
+    date date NOT NULL,
     created_at datetime NOT NULL,
     PRIMARY KEY (id)
 );

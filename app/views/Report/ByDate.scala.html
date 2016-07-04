@@ -1,1 +1,24 @@
-@()
+@(records: Seq[DeliveryLogSummaryByDate])
+
+    @layout.default("report by date page") {
+        <h1>日毎レポート</h1>
+        <div class="table-example">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>date</th>
+                        <th>count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for(r <- records) {
+                    <tr>
+                        <th scope="row">@r.date.toString("yyyy/MM/dd")</th>
+                        <td>@r.count</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    } {<!-- javascripts -->
+    }
