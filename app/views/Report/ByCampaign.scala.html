@@ -1,1 +1,26 @@
-@()
+@(records: Seq[DeliveryLogSummaryByCampaign])
+
+    @layout.default("report by campaign page") {
+        <h1>キャンペーン毎レポート</h1>
+        <div class="table-example">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>id</th>
+                        <th>title</th>
+                        <th>count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @for(r <- records) {
+                    <tr>
+                        <th scope="row">@r.id</th>
+                        <td>@r.title</td>
+                        <td>@r.count</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    } {<!-- javascripts -->
+    }

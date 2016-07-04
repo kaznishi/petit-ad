@@ -9,8 +9,10 @@ import scala.concurrent.Future
 import play.api.db.slick.DatabaseConfigProvider
 import play.api.db.slick.HasDatabaseConfig
 import slick.driver.JdbcProfile
+import slick.jdbc.GetResult
 
 case class DeliveryLog(id: Option[Long], campaignId: Int, createdAt: DateTime)
+case class DeliveryLogSummaryByCampaign(id: Int, title: String, count: Long)
 
 trait DeliveryLogsTable {
   class DeliveryLogs(tag: Tag) extends Table[DeliveryLog](tag, "DELIVERY_LOGS") {
@@ -39,36 +41,20 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
   def findByCampaignId(campaignId: Int): Future[Seq[DeliveryLog]] =
     db.run(deliveryLogs.filter(_.campaignId === campaignId).result)
 
-  def getSumGroupByCampaign: Future[Seq[Any]] =
-//    db.run(deliveryLogs.groupBy(d => d.campaignId)
-//        .map{ case (campaignId, group) => (campaignId, group.map(_.id).length) }
-//        .result
-//
-//    db.run((deliveryLogs join campaigns on (_.campaignId === _.id))
-//      .map{ case (d, c) => (d.id, d.createdAt, c.title) }
-//      .result
-//
+  /**
+    * キャンペーン毎のレコードを取得する
+    * @return
+    */
+  def getSumGroupByCampaign: Future[Seq[DeliveryLogSummaryByCampaign]] = {
+    implicit val getDeliveryLogSummaryByCampaignResult = GetResult(r => DeliveryLogSummaryByCampaign(r.<<, r.<<, r.<<))
 
-      val hoge = deliveryLogs.groupBy(d => d.campaignId)
-          .map{ case (campaignId, group) => (campaignId, group.map(_.id).length) }
-
-
-
-      val fuga = for {
-        c <- hoge
-        s <- campaigns if (c)
-      }
-
-
-      db.run((deliveryLogs join campaigns on (_.campaignId === _.id))
-        .map{ case (d, c) => (d.id, d.campaignId, d.createdAt, c.title) }
-        .map{ case (id, campaignId, craetedAt, title) => {
-
-        }(d.campaignId, c.title, group.map(_.id).length) }
-        .result
-
-    )
-
+    db.run(sql"""
+          select campaigns.id, campaigns.title, count(delivery_logs.id)
+          from campaigns
+          inner join delivery_logs on (campaigns.id = delivery_logs.campaign_id)
+          group by delivery_logs.campaign_id
+      """.as[DeliveryLogSummaryByCampaign])
+  }
 
   /**
     * 指定日のレコードを取得する
