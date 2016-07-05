@@ -13,8 +13,8 @@ import slick.jdbc.GetResult
 import scala.concurrent.ExecutionContext.Implicits.global
 
 case class DeliveryLog(id: Option[Long], campaignId: Int, date: DateTime, createdAt: DateTime)
-case class DeliveryLogSummaryByCampaign(id: Int, title: String, count: Long)
-case class DeliveryLogSummaryByDate(date: DateTime, count: Long)
+case class DeliveryLogSummaryByCampaign(id: Int, title: String, count: Int)
+case class DeliveryLogSummaryByDate(date: DateTime, count: Int)
 
 trait DeliveryLogsTable {
   class DeliveryLogs(tag: Tag) extends Table[DeliveryLog](tag, "DELIVERY_LOGS") {
@@ -48,7 +48,7 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
     * キャンペーン毎のレコードを取得する
     * @return
     */
-  def getSumGroupByCampaign: Future[Seq[DeliveryLogSummaryByCampaign]] = {
+  def getSumGroupByCampaignPlainSQL: Future[Seq[DeliveryLogSummaryByCampaign]] = {
     implicit val getDeliveryLogSummaryByCampaignResult = GetResult(r => DeliveryLogSummaryByCampaign(r.<<, r.<<, r.<<))
 
     db.run(sql"""
@@ -57,6 +57,22 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
           inner join delivery_logs on (campaigns.id = delivery_logs.campaign_id)
           group by delivery_logs.campaign_id
       """.as[DeliveryLogSummaryByCampaign])
+  }
+
+  /**
+    * キャンペーン毎のレコードを取得する
+    * @return
+    */
+  def getSumGroupByCampaign: Future[Seq[DeliveryLogSummaryByCampaign]] = {
+    val joinQuery = for {
+      c <- campaigns
+      dGroup <- deliveryLogs.groupBy(_.campaignId).map { case (campaignId, group) => (campaignId, group.map(_.id).length) }
+      if c.id === dGroup._1
+    } yield (c, dGroup)
+
+    db.run(joinQuery.result).map {
+      _.map { t: (Campaign, (Int, Int)) => {DeliveryLogSummaryByCampaign(t._1.id.getOrElse(0), t._1.title, t._2._2)}}
+    }
   }
 
   /**
@@ -79,7 +95,7 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
     db.run(deliveryLogs.groupBy(p => p.date).map {
       case (date, group) => (date, group.map(_.id).length)
     }.result).map {
-      _.map { t: (DateTime, Int) => {DeliveryLogSummaryByDate(t._1, t._2.toLong)}}}
+      _.map { t: (DateTime, Int) => {DeliveryLogSummaryByDate(t._1, t._2)}}}
   }
 
   /**

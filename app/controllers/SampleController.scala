@@ -15,7 +15,7 @@ class SampleController extends Controller {
 
   def index = Action {
 
-    val result = DeliveryLogsDAO.getSumGroupByDate
+    val result = DeliveryLogsDAO.getSumGroupByCampaign
 //    println(result)
     Await.result(result, Duration.Inf) foreach println
 
