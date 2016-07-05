@@ -38,6 +38,7 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
 
   /**
     * 指定キャンペーンのレコードを取得する
+    *
     * @param campaignId
     * @return
     */
@@ -46,27 +47,38 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
 
   /**
     * キャンペーン毎のレコードを取得する
+    *
     * @return
     */
-  def getSumGroupByCampaignPlainSQL: Future[Seq[DeliveryLogSummaryByCampaign]] = {
+  def getSumGroupByCampaignPlainSQL(startDate: DateTime, endDate: DateTime): Future[Seq[DeliveryLogSummaryByCampaign]] = {
     implicit val getDeliveryLogSummaryByCampaignResult = GetResult(r => DeliveryLogSummaryByCampaign(r.<<, r.<<, r.<<))
+
+    val endTmp = endDate.plusDays(1)
 
     db.run(sql"""
           select campaigns.id, campaigns.title, count(delivery_logs.id)
           from campaigns
           inner join delivery_logs on (campaigns.id = delivery_logs.campaign_id)
+          where delivery_logs.created_at >= $startDate and delivery_logs.created_at < $endTmp
           group by delivery_logs.campaign_id
       """.as[DeliveryLogSummaryByCampaign])
   }
 
   /**
     * キャンペーン毎のレコードを取得する
+    *
     * @return
     */
-  def getSumGroupByCampaign: Future[Seq[DeliveryLogSummaryByCampaign]] = {
+  def getSumGroupByCampaign(startDate: DateTime, endDate: DateTime): Future[Seq[DeliveryLogSummaryByCampaign]] = {
+    val endTmp = endDate.plusDays(1)
+
     val joinQuery = for {
       c <- campaigns
-      dGroup <- deliveryLogs.groupBy(_.campaignId).map { case (campaignId, group) => (campaignId, group.map(_.id).length) }
+      dGroup <- deliveryLogs
+        .filter(_.createdAt >= startDate)
+        .filter(_.createdAt < endTmp)
+        .groupBy(_.campaignId)
+        .map { case (campaignId, group) => (campaignId, group.map(_.id).length) }
       if c.id === dGroup._1
     } yield (c, dGroup)
 
@@ -78,12 +90,15 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
   /**
     * 日毎のレコード数集計を取得する
     */
-  def getSumGroupByDatePlainSQL: Future[Seq[DeliveryLogSummaryByDate]] = {
+  def getSumGroupByDatePlainSQL(startDate: DateTime, endDate: DateTime): Future[Seq[DeliveryLogSummaryByDate]] = {
     implicit val getDeliveryLogSummaryByDateResult = GetResult(r => DeliveryLogSummaryByDate(r.<<, r.<<))
+
+    val endTmp = endDate.plusDays(1)
 
     db.run(sql"""
           select delivery_logs.date, count(delivery_logs.id)
           from delivery_logs
+          where created_at >= $startDate and created_at < $endTmp
           group by delivery_logs.date
       """.as[DeliveryLogSummaryByDate])
   }
@@ -91,8 +106,15 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
   /**
     * 日毎のレコード数集計を取得する
     */
-  def getSumGroupByDate: Future[Seq[DeliveryLogSummaryByDate]] = {
-    db.run(deliveryLogs.groupBy(p => p.date).map {
+  def getSumGroupByDate(startDate: DateTime, endDate: DateTime): Future[Seq[DeliveryLogSummaryByDate]] = {
+
+    val endTmp = endDate.plusDays(1)
+
+    db.run(deliveryLogs
+      .filter(_.createdAt >= startDate)
+      .filter(_.createdAt < endTmp)
+      .groupBy(p => p.date)
+      .map {
       case (date, group) => (date, group.map(_.id).length)
     }.result).map {
       _.map { t: (DateTime, Int) => {DeliveryLogSummaryByDate(t._1, t._2)}}}
@@ -100,6 +122,7 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
 
   /**
     * 指定日のレコードを取得する
+    *
     * @param dt 集計対象日(時刻は00:00:00.0のDateTime)
     * @return
     */

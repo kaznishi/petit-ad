@@ -21,10 +21,20 @@ class SampleController extends Controller with Json4s {
 
   def index = Action {
 
-    val result = DeliveryLogsDAO.getSumGroupByCampaign
-//    println(result)
+    val startDate = new DateTime("2016-06-25")
+    val endDate = new DateTime("2016-06-28")
+
+    val result = DeliveryLogsDAO.getSumGroupByDate(startDate,endDate)
     Await.result(result, Duration.Inf) foreach println
 
+    val result2 = DeliveryLogsDAO.getSumGroupByDatePlainSQL(startDate,endDate)
+    Await.result(result2, Duration.Inf) foreach println
+
+    val result3 = DeliveryLogsDAO.getSumGroupByCampaign(startDate,endDate)
+    Await.result(result3, Duration.Inf) foreach println
+
+    val result4 = DeliveryLogsDAO.getSumGroupByCampaignPlainSQL(startDate,endDate)
+    Await.result(result4, Duration.Inf) foreach println
 
     Ok(views.html.Sample.index("index page."))
   }
