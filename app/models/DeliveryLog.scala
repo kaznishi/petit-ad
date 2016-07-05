@@ -79,7 +79,7 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
     db.run(deliveryLogs.groupBy(p => p.date).map {
       case (date, group) => (date, group.map(_.id).length)
     }.result).map {
-      _.map { t: (DateTime, Int) => {DeliveryLogSummaryByDate.tupled((t._1, t._2.toLong))}}}
+      _.map { t: (DateTime, Int) => {DeliveryLogSummaryByDate(t._1, t._2.toLong)}}}
   }
 
   /**
