@@ -11,7 +11,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.concurrent.Future
 
-class SampleController extends Controller {
+import org.json4s._
+import org.json4s.native.JsonMethods._
+import org.json4s.ext._
+import com.github.tototoshi.play2.json4s.native._
+
+class SampleController extends Controller with Json4s {
+  implicit val formats = DefaultFormats
 
   def index = Action {
 
@@ -21,6 +27,10 @@ class SampleController extends Controller {
 
 
     Ok(views.html.Sample.index("index page."))
+  }
+
+  def jsontest = Action { implicit request =>
+    Ok(Extraction.decompose(Task(1, "nametest")))
   }
 
   def list = Action {
