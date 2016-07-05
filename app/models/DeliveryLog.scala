@@ -10,6 +10,7 @@ import play.api.db.slick.DatabaseConfigProvider
 import play.api.db.slick.HasDatabaseConfig
 import slick.driver.JdbcProfile
 import slick.jdbc.GetResult
+import scala.concurrent.ExecutionContext.Implicits.global
 
 case class DeliveryLog(id: Option[Long], campaignId: Int, date: DateTime, createdAt: DateTime)
 case class DeliveryLogSummaryByCampaign(id: Int, title: String, count: Long)
@@ -59,10 +60,9 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
   }
 
   /**
-    * 日毎のレコードを取得する
-    * @return
+    * 日毎のレコード数集計を取得する
     */
-  def getSumGroupByDate: Future[Seq[DeliveryLogSummaryByDate]] = {
+  def getSumGroupByDatePlainSQL: Future[Seq[DeliveryLogSummaryByDate]] = {
     implicit val getDeliveryLogSummaryByDateResult = GetResult(r => DeliveryLogSummaryByDate(r.<<, r.<<))
 
     db.run(sql"""
@@ -70,6 +70,16 @@ object DeliveryLogsDAO extends HasDatabaseConfig[JdbcProfile] with DeliveryLogsT
           from delivery_logs
           group by delivery_logs.date
       """.as[DeliveryLogSummaryByDate])
+  }
+
+  /**
+    * 日毎のレコード数集計を取得する
+    */
+  def getSumGroupByDate: Future[Seq[DeliveryLogSummaryByDate]] = {
+    db.run(deliveryLogs.groupBy(p => p.date).map {
+      case (date, group) => (date, group.map(_.id).length)
+    }.result).map {
+      _.map { t: (DateTime, Int) => {DeliveryLogSummaryByDate.tupled((t._1, t._2.toLong))}}}
   }
 
   /**
