@@ -6,11 +6,10 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scala.util.Random
 import org.joda.time.DateTime
-import play.api.libs.json._
-import play.api.libs.functional.syntax._
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
+import org.json4s._
+import com.github.tototoshi.play2.json4s.native._
+
 
 object DeliveryController {
   case class Delivery(title: String, content: String)
@@ -20,23 +19,21 @@ object DeliveryController {
     }
   }
 
-  implicit val deliveryWrites = (
-    (__ \ "title").write[String] and (__ \ "content").write[String]
-    )(unlift(Delivery.unapply))
-
 }
 
-class DeliveryController extends Controller {
+class DeliveryController extends Controller with Json4s {
   import DeliveryController._
+
+  implicit val formats = DefaultFormats
 
   def default = Action.async { implicit rs =>
     CampaignsDAO.findById(1).map {
       case Some(record) => {
         DeliveryLogsDAO.insert(DeliveryLog(None, record.id.get, new DateTime(), new DateTime()))
-        Ok(Json.obj("data" -> Delivery(record)))
+        Ok(Extraction.decompose("data" -> Delivery(record)))
       }
       case None =>
-        Ok(Json.obj("data" -> Delivery("no title", "no content")))
+        Ok(Extraction.decompose("data" -> Delivery("no title", "no content")))
     }
   }
 
@@ -49,10 +46,10 @@ class DeliveryController extends Controller {
         CampaignsDAO.findById(ids(index)).map {
           case Some(record) => {
             DeliveryLogsDAO.insert(DeliveryLog(None, record.id.get, new DateTime(), new DateTime()))
-            Ok(Json.obj("data" -> Delivery(record)))
+            Ok(Extraction.decompose("data" -> Delivery(record)))
           }
           case None =>
-            Ok(Json.obj("data" -> Delivery("no title", "no content")))
+            Ok(Extraction.decompose("data" -> Delivery("no title", "no content")))
         }
       }
     }
@@ -71,11 +68,11 @@ class DeliveryController extends Controller {
         CampaignsDAO.findById(ids(index)).flatMap {
           case Some(record) => {
             DeliveryLogsDAO.insert(DeliveryLog(None, record.id.get, new DateTime(), new DateTime())).map { r =>
-              Ok(Json.obj("data" -> Delivery(record)))
+              Ok(Extraction.decompose("data" -> Delivery(record)))
             }
           }
           case None =>
-            Future.successful(Ok(Json.obj("data" -> Delivery("no title", "no content"))))
+            Future.successful(Ok(Extraction.decompose("data" -> Delivery("no title", "no content"))))
 
         }
       }
@@ -104,8 +101,8 @@ class DeliveryController extends Controller {
       }
     } yield {
       optRecord match {
-        case Some(record) => Ok(Json.obj ("data" -> Delivery (record) ) )
-        case None => Ok(Json.obj("data" -> Delivery("no title", "no content")))
+        case Some(record) => Ok(Extraction.decompose("data" -> Delivery (record) ) )
+        case None => Ok(Extraction.decompose("data" -> Delivery("no title", "no content")))
       }
     }
   }
