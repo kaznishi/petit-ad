@@ -48,7 +48,10 @@ class SampleController extends Controller with Json4s {
     Ok(views.html.Sample.list("list page.", lists))
   }
 
-  def hoge = Action {
+  def hoge(startDate: Option[DateTime], endDate: Option[DateTime]) = Action {
+    println(startDate)
+    println(endDate)
+
     Ok(views.html.Sample.hoge("hoge title!!!"))
   }
 

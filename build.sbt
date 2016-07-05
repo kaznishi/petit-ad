@@ -1,3 +1,5 @@
+import play.sbt.routes.RoutesKeys
+
 name := """petit-ad"""
 
 version := "1.0-SNAPSHOT"
@@ -20,11 +22,14 @@ libraryDependencies ++= Seq(
   "org.json4s" %% "json4s-ext" % "3.2.11",
   "com.github.tototoshi" %% "play-json4s-native" % "0.4.1",
   "com.github.tototoshi" %% "play-json4s-test-native" % "0.4.1" % "test",
+  "com.github.tototoshi" %% "play-joda-routes-binder" % "1.1.0",
 //  "mysql" % "mysql-connector-java" % "5.1.36",
 //  specs2 % Test,
   "org.scalatest" % "scalatest_2.11" % "2.2.4" % "test",
   "org.scalatestplus" %% "play" % "1.4.0-M4" % "test"
 )
+
+RoutesKeys.routesImport += "customize.MyRoutes.myJodaRoutes._"
 
 resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
 
